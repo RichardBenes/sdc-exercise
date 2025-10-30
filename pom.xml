@@ -61,7 +61,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.rbenes.App</mainClass>
+              <mainClass>com.rbenes.PrimesChecker</mainClass>
             </manifest>
           </archive>
         </configuration>
