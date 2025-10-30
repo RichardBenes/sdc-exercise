@@ -1,0 +1,42 @@
+= Prime numbers checker
+
+How to run this app:
+
+[source,powershell]
+----
+mvn package
+java -jar .\target\sdc-exercise-1.0-SNAPSHOT.jar
+----
+
+This app is built using Java 25 and Maven 3.9.11.
+VS Code has been used as a code editor, with the https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack[Extension Pack for Java] extension.
+
+== What input file is expected
+
+== Decisions made during development
+
+=== Which Excel library should I use?
+
+This https://www.baeldung.com/java-microsoft-excel[Baeldung article] mentions three -- Apache POI, JExcel and Fastexcel.
+Since I only need to _read_ `*.xlsx` files, JExcel is out -- it only supports older `*.xls` files.
+Fastexcel is developed with emphasis on quick generation of files, but in general supports less `*.xlsx`-related features.
+
+My bottleneck will most likely be the prime check, not the reading (that will happen only once) -- so I'll pick Apache POI,
+as it seems to be the most versatile tool -- in case I'd need to do anything else Excel-related in future, this seems to be
+pretty likely to support it.
+
+
+
+== Sources used
+
+* https://jdk.java.net/25/
+* https://maven.apache.org/download.cgi
+* https://github.com/junit-team/junit-examples/blob/r6.0.0/junit-jupiter-starter-maven/pom.xml
+* https://central.sonatype.com
+* https://www.baeldung.com/java-jar-executable-manifest-main-class#1-using-maven
+* https://www.baeldung.com/java-microsoft-excel
+* https://github.com/dhatim/fastexcel
+* https://github.com/apache/poi
+* https://poi.apache.org/
+* https://poi.apache.org/apidocs/5.0/
+* https://www.baeldung.com/java-try-with-resources
