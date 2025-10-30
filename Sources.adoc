@@ -1,4 +1,6 @@
 = Sources I used
 
-* https://jdk.java.net/25/ - JDK
+* https://jdk.java.net/25/
 * https://maven.apache.org/download.cgi
+* https://github.com/junit-team/junit-examples/blob/r6.0.0/junit-jupiter-starter-maven/pom.xml
+* https://central.sonatype.com
