@@ -1,0 +1,4 @@
+= Sources I used
+
+* https://jdk.java.net/25/ - JDK
+* https://maven.apache.org/download.cgi
