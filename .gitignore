@@ -3,4 +3,4 @@ dependencies.txt
 
 # this file tends to, for unknown reason, change even when it hasn't
 # been touched. Let's ignore all such changes.
-**.xlsx
+*.xlsx

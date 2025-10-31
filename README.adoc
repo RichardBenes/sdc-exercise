@@ -36,6 +36,17 @@ I'll use Log4j, since:
 
 I don't like the explicit `LogManager.getLogger()` stuff -- so this is the perfect time to also introduce Lombok.
 
+=== How to test the standard output?
+
+The app is supposed to give output via stdout using a Logger.
+This makes it tricky to test -- jUnit nor logging frameworks seem to have any
+significant support for testing the logged messages.
+
+Only exception is `OutputCaptureExtension` from Spring Boot... but I'd like to
+avoid introducing Spring Boot here.
+
+Well, after spending too much time on this, I'm moving on, perhaps solving this later.
+
 == Sources used
 
 * https://jdk.java.net/25/
