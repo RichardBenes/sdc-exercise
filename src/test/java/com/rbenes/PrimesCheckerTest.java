@@ -5,6 +5,9 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.FileNotFoundException;
@@ -13,7 +16,7 @@ import java.io.File;
 
 public class PrimesCheckerTest {
 
-    static final String TEST_WORKBOOK_PATH = "src\\test\\resources\\vzorek_dat - kopie.xlsx";
+    static final String TEST_WORKBOOK_PATH = "src\\test\\resources\\";
 
     @Disabled("Just for development")
     @Test
@@ -22,10 +25,11 @@ public class PrimesCheckerTest {
         System.out.printf("Current path is: %s\n", currentPath);        
     }
 
-    @Test
-    public void readCellFromXlsxFile() throws FileNotFoundException, IOException, InvalidFormatException {
+    @ParameterizedTest
+    @ValueSource(strings = {"vzorek_dat - kopie.xlsx", "formatted-cell.xlsx"})
+    public void readCellFromXlsxFile(String filename) throws FileNotFoundException, IOException, InvalidFormatException {
 
-        try (Workbook w = new XSSFWorkbook(new File(TEST_WORKBOOK_PATH))) {
+        try (Workbook w = new XSSFWorkbook(new File(TEST_WORKBOOK_PATH + filename))) {
 
             Sheet sheet = w.getSheetAt(0);
 
