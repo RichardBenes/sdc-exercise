@@ -5,7 +5,7 @@ How to run this app:
 [source,powershell]
 ----
 mvn package
-java -jar .\target\sdc-exercise-1.0-SNAPSHOT.jar
+java -jar .\target\sdc-exercise-1.0-SNAPSHOT-jar-with-dependencies.jar -- '.\vzorek_dat - kopie.xlsx'
 ----
 
 This app is built using Java 25 and Maven 3.9.11.
