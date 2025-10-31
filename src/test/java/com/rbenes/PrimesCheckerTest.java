@@ -8,12 +8,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import lombok.extern.log4j.Log4j2;
+
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
 
+@Log4j2
 public class PrimesCheckerTest {
 
     static final String TEST_WORKBOOK_PATH = "src\\test\\resources\\";
@@ -22,7 +25,7 @@ public class PrimesCheckerTest {
     @Test
     public void findCurrentPath() throws FileNotFoundException, IOException {
         String currentPath = new File(".").getCanonicalPath();
-        System.out.printf("Current path is: %s\n", currentPath);        
+        log.info("Current path is: {}", currentPath);
     }
 
     @ParameterizedTest

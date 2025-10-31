@@ -25,7 +25,16 @@ My bottleneck will most likely be the prime check, not the reading (that will ha
 as it seems to be the most versatile tool -- in case I'd need to do anything else Excel-related in future, this seems to be
 pretty likely to support it.
 
+=== How to approach logging?
 
+The instructions say that I should use `Logger`.
+I'll use Log4j, since:
+
+* I'm used to work with it;
+* Apache POI does already use it
+* It does implement a [`Logger`]https://logging.apache.org/log4j/2.x/javadoc/log4j-api/org/apache/logging/log4j/Logger.html class.
+
+I don't like the explicit `LogManager.getLogger()` stuff -- so this is the perfect time to also introduce Lombok.
 
 == Sources used
 
@@ -41,3 +50,6 @@ pretty likely to support it.
 * https://poi.apache.org/apidocs/5.0/
 * https://www.baeldung.com/java-try-with-
 * https://www.baeldung.com/executable-jar-with-maven
+* https://logging.apache.org/log4j/2.x/manual/installation.html
+* https://projectlombok.org/setup/maven
+* https://logging.apache.org/log4j/2.x/manual/getting-started.html

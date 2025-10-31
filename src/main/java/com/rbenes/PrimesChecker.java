@@ -7,15 +7,17 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class PrimesChecker {
 
     // TODO: handle exceptions more gracefully
-    // TODO: use logger instead of stdout
     // TODO: handle the file being used by some other process
     public static void main( String[] args ) throws InvalidFormatException, IOException {
 
         if (args.length != 2) {
-            System.out.println("Expected file name as a single argument");
+            log.error("Expected file name as a single argument");
             System.exit(-1);
         }
 
@@ -29,7 +31,11 @@ public class PrimesChecker {
             Row row0 = sheet.getRow(1);
             Cell cellB2 = row0.getCell(1);
 
-            System.out.println(cellB2.getStringCellValue());
-        }        
+            log.info("Cell B2 has value {}", cellB2.getStringCellValue());
+
+        } catch (Exception e) {
+
+            log.error("Workbook processing has failed", e);
+        }
     }
 }
