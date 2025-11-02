@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
@@ -24,15 +25,20 @@ public class PrimesChecker {
         }
 
         ArrayBlockingQueue<EnhancedCell> abq = new ArrayBlockingQueue<>(5);
+        ArrayBlockingQueue<EnhancedCell> pbq = new ArrayBlockingQueue<>(5);
 
-        PrimalityChecker pca = new PrimalityChecker(abq, "pcA");
-        PrimalityChecker pcb = new PrimalityChecker(abq, "pcB");
+        PrimalityChecker pca = new PrimalityChecker(abq, pbq);
+        PrimalityChecker pcb = new PrimalityChecker(abq, pbq);
+        Outputter ou = new Outputter(pbq);
 
+        // TODO: use ThreadPool
         Thread ta = new Thread(pca, "ta");
         Thread tb = new Thread(pcb, "tb");
+        Thread tou = new Thread(ou, "tou");
 
         ta.start();
         tb.start();
+        tou.start();
 
         var filename = args[1];
         
@@ -58,6 +64,7 @@ public class PrimesChecker {
 
             ta.join();
             tb.join();
+            tou.join();
 
             // Now there should be exactly a single None in the queue
 

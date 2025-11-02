@@ -1,6 +1,7 @@
 package com.rbenes;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -10,15 +11,15 @@ public class PrimalityChecker implements Runnable {
     boolean resultIsPrime;
     AKS aks;
     ArrayBlockingQueue<EnhancedCell> inputAbq;
-    final String primalityCheckerName;
+    ArrayBlockingQueue<EnhancedCell> outputAbq;
 
     public PrimalityChecker(
         ArrayBlockingQueue<EnhancedCell> inputAbq,
-        String name
+        ArrayBlockingQueue<EnhancedCell> outputAbq
     ) {
         this.aks = new AKS();
         this.inputAbq = inputAbq;
-        this.primalityCheckerName = name;
+        this.outputAbq = outputAbq;
     }
 
     @Override
@@ -36,23 +37,22 @@ public class PrimalityChecker implements Runnable {
                     // We need to inform everyone else too -
                     // - so we put it back first
                     inputAbq.put(cell);
-                    log.debug("PrimalityChecker {} from thread {} is done.", 
-                        primalityCheckerName,
-                        Thread.currentThread().getName());
-
+                    outputAbq.put(cell);
                     break;
                 }
 
+                cell.computePrimality(aks);
+                
+                outputAbq.put(cell);                
+
             } catch (InterruptedException ie) {
-                log.error("PrimalityChecker {} has been interrupted", primalityCheckerName, ie);
+                log.error("PrimalityChecker {} has been interrupted", ie);
                 return;
             }
-
-            cell.computePrimality(aks);
-
-            log.debug("P. r. of {}: {}", 
-                primalityCheckerName, cell.getCellInfo());
         }
+
+        log.debug("Thread {} is done.",
+            Thread.currentThread().getName());        
     }
 }
 

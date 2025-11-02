@@ -11,25 +11,30 @@ import lombok.extern.log4j.Log4j2;
 public class EnhancedCell implements Comparable<EnhancedCell> {
 
     @Getter
-    Cell cell;
+    private Cell cell;
 
-    Primality primality;
+    @Getter
+    private Primality primality;
+
+    private Long numericValue;
 
     @Getter
     // Using kind of the Null Object Pattern
     // https://youtu.be/rQ7BzfRz7OY?si=0xRl9nzpCdA8v6xn
-    final boolean endOfProcessingCell;
+    private final boolean endOfProcessingCell;
 
     public EnhancedCell(Cell c) {
         this.endOfProcessingCell = false;
         this.cell = c;
         this.primality = Primality.UNKNOWN_YET;
+        this.numericValue = null;
     }
 
     private EnhancedCell() {
         this.endOfProcessingCell = true;
         this.cell = null;
         this.primality = Primality.INVALID;
+        this.numericValue = null;
     }
 
     public static EnhancedCell createEndOfProcessingCell() {
@@ -46,23 +51,42 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
         return cell.getRowIndex() + 1;
     }
 
+    public boolean isPrime() {
+        return this.primality == Primality.PRIME;
+    }
+
+    public Long getNumericValue() {
+
+        if (this.primality == Primality.UNKNOWN_YET) {
+            computeCellsNumericContent();
+            return numericValue;
+        }
+        
+        return numericValue;
+    }
+
     public boolean computePrimality(AKS aks) {
 
-        Long longVal = getCellsNumericContent();
+        if (primality == Primality.UNKNOWN_YET) {
+            computeCellsNumericContent();
+        }
 
-        if (longVal == null) {
+        if (numericValue == null) {
             this.primality = Primality.INVALID;
             return false;
         }
 
         // I'll consider 2 more likely to occur - so I'll check it first,
         // before computing the oddity via remainder
-        if (longVal == 2 || (longVal % 2 == 0) || (longVal % 5 == 0)) {
+        if (numericValue == 2 
+                || (numericValue % 2 == 0) 
+                || (numericValue % 5 == 0)
+        ) {
             this.primality = Primality.COMPOSITE;
             return false;
         }
         
-        if (aks.checkIsPrime(longVal)) {
+        if (aks.checkIsPrime(numericValue)) {
             this.primality = Primality.PRIME;
         } else {
             this.primality = Primality.COMPOSITE;
@@ -100,7 +124,9 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
         }
     }
 
-    public Long getCellsNumericContent() {
+    public void computeCellsNumericContent() {
+
+        this.primality = Primality.UNKNOWN_YET_NUMVAL_COMPUTED;
 
         if (cell.getCellType() == CellType.STRING) {
 
@@ -110,22 +136,24 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
             // properly parsed default value, and failed parse.
             // Luckily though, I don't care - if parsing failed,
             // it's not an prime, and that's all I need to know.
-            return NumberUtils.toLong(cell.getStringCellValue().strip(), 2);
+            this.numericValue = NumberUtils.toLong(cell.getStringCellValue().strip(), 2);
+            return;
 
-        } else if (cell.getCellType() == CellType.NUMERIC) {
+        }
+        
+        if (cell.getCellType() == CellType.NUMERIC) {
             
             // This won't work for numbers with a large "span",
             // like 500000001.00000001
             if (cell.getNumericCellValue() % 1.0D != 0.0D) {
-                return null;
+                this.numericValue = null;
+                return;
             }
             
-            return Double.valueOf(cell.getNumericCellValue()).longValue();
-
-        } else {
-            return null;
+            this.numericValue = Double.valueOf(cell.getNumericCellValue()).longValue();
+            return;
         }
+        
+        this.numericValue = null;
     }
-
-    
 }
