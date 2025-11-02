@@ -44,10 +44,17 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
     @Override
     public int compareTo(EnhancedCell o) {
         return Integer.compare(
-            cell.getRowIndex(), o.getCell().getRowIndex());
+            getVisualRowIndex(), o.getVisualRowIndex());
     }
 
     public int getVisualRowIndex() {
+
+        if (isEndOfProcessingCell()) {
+            // This is safe; max. number of rows in Excel is around 1 bilion,
+            // we're returning value above 2 bilions.
+            return Integer.MAX_VALUE;
+        }
+
         return cell.getRowIndex() + 1;
     }
 
@@ -138,7 +145,6 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
             // it's not an prime, and that's all I need to know.
             this.numericValue = NumberUtils.toLong(cell.getStringCellValue().strip(), 2);
             return;
-
         }
         
         if (cell.getCellType() == CellType.NUMERIC) {

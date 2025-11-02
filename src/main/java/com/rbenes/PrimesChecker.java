@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
@@ -15,8 +14,8 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class PrimesChecker {
 
-    // TODO: handle exceptions more gracefully
-    // TODO: handle the file being used by some other process
+    // TODO: use properties for constants (sheet number, column...)
+    // TODO: why is the 'x' value considered as 2?
     public static void main( String[] args ) throws InvalidFormatException, IOException {
 
         if (args.length != 2) {
@@ -41,12 +40,11 @@ public class PrimesChecker {
         tou.start();
 
         var filename = args[1];
+        log.debug("Processing {}", filename);
         
         try (Workbook w = new XSSFWorkbook(new File(filename))) {
 
             Sheet sheet = w.getSheetAt(0);
-
-            // Counting is zero based in Java, but 1-based in Excel...
 
             log.info("Last row has number {}, and there are {} phys. rows", 
                 sheet.getLastRowNum(),
@@ -65,8 +63,6 @@ public class PrimesChecker {
             ta.join();
             tb.join();
             tou.join();
-
-            // Now there should be exactly a single None in the queue
 
         } catch (FileNotFoundException f) {
             log.error("Could not open the file {}. Isn't it opened by a different process?", filename);
