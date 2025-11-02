@@ -3,6 +3,8 @@ package com.rbenes;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
@@ -22,6 +24,17 @@ public class PrimesChecker {
             System.exit(-1);
         }
 
+        ArrayBlockingQueue<Optional<Cell>> abq = new ArrayBlockingQueue<>(5);
+
+        PrimalityChecker pca = new PrimalityChecker(abq, "pcA");
+        PrimalityChecker pcb = new PrimalityChecker(abq, "pcB");
+
+        Thread ta = new Thread(pca, "ta");
+        Thread tb = new Thread(pcb, "tb");
+
+        ta.start();
+        tb.start();
+
         var filename = args[1];
         
         try (Workbook w = new XSSFWorkbook(new File(filename))) {
@@ -39,10 +52,16 @@ public class PrimesChecker {
                 Cell cellB = row.getCell(1);
                 int rowNum = row.getRowNum() + 1;
 
-                PrimalityChecker pc = new PrimalityChecker(cellB);
-
-                pc.logCellPrimality(rowNum);
+                abq.put(Optional.of(cellB));
+                log.info("Added cell B{} to the queue.", rowNum);
             }
+
+            abq.put(Optional.empty());
+
+            ta.join();
+            tb.join();
+
+            // Now there should be exactly a single None in the queue
 
         } catch (FileNotFoundException f) {
             log.error("Could not open the file {}. Isn't it opened by a different process?", filename);

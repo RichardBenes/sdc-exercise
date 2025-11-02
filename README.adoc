@@ -13,6 +13,16 @@ VS Code has been used as a code editor, with the https://marketplace.visualstudi
 
 == What input file is expected
 
+== Multithreaded architecture
+
+Main thread reads values from the Excel file, and puts them in a queue.
+
+Then multiple worker threads, represented by the `PrimalityChecker` class,
+are picking the values, and are processing them.
+That works.
+
+But then we need to reorder them back. That's to be done yet.
+
 == Decisions made during development
 
 === Which Excel library should I use?

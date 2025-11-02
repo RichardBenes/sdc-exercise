@@ -1,23 +1,67 @@
 package com.rbenes;
 
+import java.lang.management.ThreadInfo;
+import java.util.Optional;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.ss.usermodel.*;
 
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class PrimalityChecker {
+public class PrimalityChecker implements Runnable {
 
-    Cell cell;
     boolean resultIsPrime;
     AKS aks;
+    ArrayBlockingQueue<Optional<Cell>> inputAbq;
+    final String primalityCheckerName;
 
-    public PrimalityChecker(Cell c) {
-        this.cell = c;
+    public PrimalityChecker(
+        ArrayBlockingQueue<Optional<Cell>> inputAbq,
+        String name
+    ) {
         this.aks = new AKS();
+        this.inputAbq = inputAbq;
+        this.primalityCheckerName = name;
     }
 
-    public boolean checkCell() {
+    @Override
+    public void run() {
+
+        Optional<Cell> maybeC;
+
+        while (true) {
+
+            try {
+                maybeC = inputAbq.take();
+
+                if (maybeC.isEmpty()) {
+
+                    // We need to inform everyone else too -
+                    // - so we put it back first
+                    inputAbq.put(Optional.empty());
+                    log.debug("PrimalityChecker {} from thread {} is done.", 
+                        primalityCheckerName,
+                        Thread.currentThread().getName());
+                    break;
+                }
+
+            } catch (InterruptedException ie) {
+                log.error("PrimalityChecker {} has been interrupted", primalityCheckerName, ie);
+                return;
+            }
+
+            Cell c = maybeC.get();
+
+            boolean isPrime = checkCell(c);
+
+            log.debug("PrimalityChecker {} processed cell B{} - primality: {}", 
+                primalityCheckerName, c.getRowIndex() + 1, isPrime);
+        }
+    }
+
+    public boolean checkCell(Cell cell) {
 
         long longVal;
 
@@ -53,19 +97,21 @@ public class PrimalityChecker {
         return this.aks.checkIsPrime(longVal);
     }
 
-    public void logCellPrimality(int rowNum) {
+    public void logCellPrimality(Cell cell) {
+
+        int rowNum = cell.getRowIndex() + 1;
 
         if (cell.getCellType() == CellType.NUMERIC) {
 
             log.info("Cell B{} has num value {}, prime: {}", 
                 rowNum, 
                 Double.toString(cell.getNumericCellValue()), 
-                checkCell());
+                checkCell(cell));
         } else if (cell.getCellType() == CellType.STRING) {
             log.info("Cell B{} has str value {}, prime: {}", 
                 rowNum, 
                 cell.getStringCellValue(), 
-                checkCell());
+                checkCell(cell));
         } else {
             log.info("Cell B{} is of type {} - such cells are ignored by this program", 
                 rowNum,
