@@ -1,10 +1,8 @@
 package com.rbenes;
 
-import java.lang.management.ThreadInfo;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.ss.usermodel.*;
 
 import lombok.extern.log4j.Log4j2;
@@ -63,38 +61,12 @@ public class PrimalityChecker implements Runnable {
 
     public boolean checkCell(Cell cell) {
 
-        long longVal;
+        // TODO: this is too late to create EnhancedCell
+        var ec = new EnhancedCell(cell);
 
-        if (cell.getCellType() == CellType.STRING) {
+        resultIsPrime = ec.computePrimality(aks);
 
-            // I don't want the overhead of an exception every time there
-            // is a bad input - so I'm using Apache's lib
-            // Unfortunately, not even here can I properly distinguish between
-            // properly parsed default value, and failed parse.
-            // Luckily though, I don't care - if parsing failed,
-            // it's not an prime, and that's all I need to know.
-            longVal = NumberUtils.toLong(cell.getStringCellValue().strip(), 2);
-
-        } else if (cell.getCellType() == CellType.NUMERIC) {
-            
-            // This won't work for numbers with a large "span",
-            // like 500000001.00000001
-            if (cell.getNumericCellValue() % 1.0D != 0.0D) {
-                return false;
-            }
-            
-            longVal = Double.valueOf(cell.getNumericCellValue()).longValue();
-        } else {
-            return false;
-        }
-
-        // I'll consider 2 more likely to occur - so I'll check it first,
-        // before computing the oddity via remainder
-        if (longVal == 2 || (longVal % 2 == 0)) {
-            return false;
-        }
-        
-        return this.aks.checkIsPrime(longVal);
+        return resultIsPrime;
     }
 
     public void logCellPrimality(Cell cell) {
