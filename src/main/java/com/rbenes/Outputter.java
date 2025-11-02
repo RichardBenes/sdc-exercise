@@ -10,14 +10,14 @@ import lombok.extern.log4j.Log4j2;
 public class Outputter implements Runnable {
 
     ArrayBlockingQueue<EnhancedCell> inputAbq;
-    PriorityQueue<EnhancedCell> pq;
+    PriorityQueue<EnhancedCell> orderedQueue;
 
     int nextExpectedVisualIndex;
 
     public Outputter(ArrayBlockingQueue<EnhancedCell> inputAbq) {
         this.inputAbq = inputAbq;
         this.nextExpectedVisualIndex = 1;
-        this.pq = new PriorityQueue<>();
+        this.orderedQueue = new PriorityQueue<>();
     }
 
     @Override
@@ -26,7 +26,7 @@ public class Outputter implements Runnable {
         while (true) {
 
             try {
-                pq.add(inputAbq.take());
+                orderedQueue.add(inputAbq.take());
 
                 if (drainPqAndFindEndOfProcessing(this::logCell)) {
                     break;
@@ -44,16 +44,19 @@ public class Outputter implements Runnable {
 
     private boolean drainPqAndFindEndOfProcessing(Consumer<EnhancedCell> processCell) {
 
-        while (!pq.isEmpty()) {
+        while (!orderedQueue.isEmpty()) {
 
-            EnhancedCell head = pq.peek();
+            EnhancedCell head = orderedQueue.peek();
 
-            if (pq.size() == 1 && head.isEndOfProcessingCell()) {
+            // If the head, that is, the element with the _lowest_ number
+            // is endOfProcessing, it's clear that all the other elements
+            // have been processed as well
+            if (head.isEndOfProcessingCell()) {
                 return true;
             }
 
             if (head.getVisualRowIndex() == nextExpectedVisualIndex) {
-                head = pq.remove();
+                head = orderedQueue.remove();
                 nextExpectedVisualIndex += 1;
                 processCell.accept(head);
             } else {

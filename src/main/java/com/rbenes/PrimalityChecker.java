@@ -36,7 +36,6 @@ public class PrimalityChecker implements Runnable {
                     // We need to inform everyone else too -
                     // - so we put it back first
                     inputAbq.put(cell);
-                    outputAbq.put(cell);
                     break;
                 }
 

@@ -15,7 +15,7 @@ import lombok.extern.log4j.Log4j2;
 public class SdcExercise {
 
     // TODO: use properties for constants (sheet number, column...)
-    // TODO: why is the 'x' value considered as 2?
+    // TODO: properly mark unparseable values as INVALID, not 2
     public static void main( String[] args ) throws InvalidFormatException, IOException {
 
         if (args.length != 2) {
@@ -23,24 +23,30 @@ public class SdcExercise {
             System.exit(-1);
         }
 
-        ArrayBlockingQueue<EnhancedCell> abq = new ArrayBlockingQueue<>(5);
-        ArrayBlockingQueue<EnhancedCell> pbq = new ArrayBlockingQueue<>(5);
+        ArrayBlockingQueue<EnhancedCell> workseetToWorkerThreadsLoadingQueue = new ArrayBlockingQueue<>(5);
+        ArrayBlockingQueue<EnhancedCell> workThreadToOutputterShippingQueue = new ArrayBlockingQueue<>(5);
 
-        PrimalityChecker pca = new PrimalityChecker(abq, pbq);
-        PrimalityChecker pcb = new PrimalityChecker(abq, pbq);
-        Outputter ou = new Outputter(pbq);
+        // https://stackoverflow.com/a/4759606/9556542
+        // int cores = Runtime.getRuntime().availableProcessors();
+        int nOfThreads = 3;
+        Thread[] threads = new Thread[nOfThreads];
 
-        // TODO: use ThreadPool
-        Thread ta = new Thread(pca, "ta");
-        Thread tb = new Thread(pcb, "tb");
+        for (int i = 0; i < threads.length; i += 1) {
+            threads[i] = new Thread(
+                new PrimalityChecker(
+                    workseetToWorkerThreadsLoadingQueue, 
+                    workThreadToOutputterShippingQueue), 
+                    "tw%s".formatted(i));
+
+            threads[i].start();
+        }
+
+        Outputter ou = new Outputter(workThreadToOutputterShippingQueue);
         Thread tou = new Thread(ou, "tou");
-
-        ta.start();
-        tb.start();
         tou.start();
 
         var filename = args[1];
-        log.debug("Processing {}", filename);
+        log.debug("Processing file {}", filename);
         
         try (Workbook w = new XSSFWorkbook(new File(filename))) {
 
@@ -54,14 +60,17 @@ public class SdcExercise {
 
                 EnhancedCell cellB = new EnhancedCell(row.getCell(1));
 
-                abq.put(cellB);
+                workseetToWorkerThreadsLoadingQueue.put(cellB);
                 log.info("Added cell B{} to the queue.", cellB.getVisualRowIndex());
             }
 
-            abq.put(EnhancedCell.createEndOfProcessingCell());
+            workseetToWorkerThreadsLoadingQueue.put(EnhancedCell.createEndOfProcessingCell());
 
-            ta.join();
-            tb.join();
+            for (Thread thread : threads) {
+                thread.join();
+            }
+
+            workThreadToOutputterShippingQueue.put(EnhancedCell.createEndOfProcessingCell());
             tou.join();
 
         } catch (FileNotFoundException f) {

@@ -96,3 +96,4 @@ Has been obtained from https://github.com/smanikar/primality-testing/blob/master
 * https://stackoverflow.com/questions/4009198/java-get-greatest-common-divisor
 * https://youtu.be/rQ7BzfRz7OY?si=0xRl9nzpCdA8v6xn
 * https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3
+* https://stackoverflow.com/a/4759606/9556542
