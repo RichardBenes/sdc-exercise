@@ -47,6 +47,11 @@ avoid introducing Spring Boot here.
 
 Well, after spending too much time on this, I'm moving on, perhaps solving this later.
 
+=== Is the first row allways gonna contain 'Data' string?
+
+It's not specified by the assignment.
+So I'll treat it as ordinary data cell, that may contain valid data.
+
 == Sources used
 
 * https://jdk.java.net/25/

@@ -1,6 +1,7 @@
 package com.rbenes;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -28,13 +29,31 @@ public class PrimesChecker {
             Sheet sheet = w.getSheetAt(0);
 
             // Counting is zero based in Java, but 1-based in Excel...
-            Row row0 = sheet.getRow(1);
-            Cell cellB2 = row0.getCell(1);
 
-            log.info("Cell B2 has value {}", cellB2.getStringCellValue());
+            log.info("Last row has number {}, and there are {} phys. rows", 
+                sheet.getLastRowNum(),
+                sheet.getPhysicalNumberOfRows());
 
+            for (Row row : sheet) {
+
+                Cell cellB = row.getCell(1);
+                int rowNum = row.getRowNum() + 1;
+
+                if (cellB.getCellType() == CellType.NUMERIC) {
+                    log.info("Cell B{} has num value {}", 
+                        rowNum, Double.toString(cellB.getNumericCellValue()));
+                } else if (cellB.getCellType() == CellType.STRING) {
+                    log.info("Cell B{} has str value {}", rowNum, cellB.getStringCellValue());
+                } else {
+                    log.info("Cell B{} is of type {} - such cells are ignored by this program.", 
+                        row.getRowNum() + 1,
+                        cellB.getCellType());
+                }
+            }
+
+        } catch (FileNotFoundException f) {
+            log.error("Could not open the file {}. Isn't it opened by a different process?", filename);
         } catch (Exception e) {
-
             log.error("Workbook processing has failed", e);
         }
     }
