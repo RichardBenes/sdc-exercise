@@ -3,7 +3,6 @@ package com.rbenes;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -24,7 +23,7 @@ public class PrimesChecker {
             System.exit(-1);
         }
 
-        ArrayBlockingQueue<Optional<Cell>> abq = new ArrayBlockingQueue<>(5);
+        ArrayBlockingQueue<EnhancedCell> abq = new ArrayBlockingQueue<>(5);
 
         PrimalityChecker pca = new PrimalityChecker(abq, "pcA");
         PrimalityChecker pcb = new PrimalityChecker(abq, "pcB");
@@ -49,14 +48,13 @@ public class PrimesChecker {
 
             for (Row row : sheet) {
 
-                Cell cellB = row.getCell(1);
-                int rowNum = row.getRowNum() + 1;
+                EnhancedCell cellB = new EnhancedCell(row.getCell(1));
 
-                abq.put(Optional.of(cellB));
-                log.info("Added cell B{} to the queue.", rowNum);
+                abq.put(cellB);
+                log.info("Added cell B{} to the queue.", cellB.getVisualRowIndex());
             }
 
-            abq.put(Optional.empty());
+            abq.put(EnhancedCell.createEndOfProcessingCell());
 
             ta.join();
             tb.join();

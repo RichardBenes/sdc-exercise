@@ -15,15 +15,35 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
 
     Primality primality;
 
+    @Getter
+    // Using kind of the Null Object Pattern
+    // https://youtu.be/rQ7BzfRz7OY?si=0xRl9nzpCdA8v6xn
+    final boolean endOfProcessingCell;
+
     public EnhancedCell(Cell c) {
+        this.endOfProcessingCell = false;
         this.cell = c;
         this.primality = Primality.UNKNOWN_YET;
+    }
+
+    private EnhancedCell() {
+        this.endOfProcessingCell = true;
+        this.cell = null;
+        this.primality = Primality.INVALID;
+    }
+
+    public static EnhancedCell createEndOfProcessingCell() {
+        return new EnhancedCell();
     }
 
     @Override
     public int compareTo(EnhancedCell o) {
         return Integer.compare(
             cell.getRowIndex(), o.getCell().getRowIndex());
+    }
+
+    public int getVisualRowIndex() {
+        return cell.getRowIndex() + 1;
     }
 
     public boolean computePrimality(AKS aks) {
@@ -51,25 +71,32 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
         return this.primality == Primality.PRIME;
     }
 
-    public void logCellInfo() {
+    public String getCellInfo() {
 
         int rowNum = cell.getRowIndex() + 1;
 
         if (cell.getCellType() == CellType.NUMERIC) {
 
-            log.info("Cell B{} has num value {}, prime: {}", 
-                rowNum, 
-                Double.toString(cell.getNumericCellValue()), 
-                primality);
+            return "Cell B%s has num value %s, prime: %s"
+                .formatted(
+                    getVisualRowIndex(),
+                    Double.toString(cell.getNumericCellValue()),
+                    primality);
+
         } else if (cell.getCellType() == CellType.STRING) {
-            log.info("Cell B{} has str value {}, prime: {}", 
-                rowNum, 
-                cell.getStringCellValue(), 
-                primality);
+
+            return "Cell B%s has str value %s, prime: %s"
+                .formatted(
+                    getVisualRowIndex(),
+                    cell.getStringCellValue(),
+                    primality);
+
         } else {
-            log.info("Cell B{} is of type {} - such cells are ignored by this program", 
-                rowNum,
-                cell.getCellType());
+
+            return "Cell B{} is of type {} - such cells are ignored by this program"
+                .formatted(
+                    rowNum,
+                    cell.getCellType());
         }
     }
 
