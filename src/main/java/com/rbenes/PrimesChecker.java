@@ -39,16 +39,9 @@ public class PrimesChecker {
                 Cell cellB = row.getCell(1);
                 int rowNum = row.getRowNum() + 1;
 
-                if (cellB.getCellType() == CellType.NUMERIC) {
-                    log.info("Cell B{} has num value {}", 
-                        rowNum, Double.toString(cellB.getNumericCellValue()));
-                } else if (cellB.getCellType() == CellType.STRING) {
-                    log.info("Cell B{} has str value {}", rowNum, cellB.getStringCellValue());
-                } else {
-                    log.info("Cell B{} is of type {} - such cells are ignored by this program.", 
-                        row.getRowNum() + 1,
-                        cellB.getCellType());
-                }
+                PrimalityChecker pc = new PrimalityChecker(cellB);
+
+                pc.logCellPrimality(rowNum);
             }
 
         } catch (FileNotFoundException f) {

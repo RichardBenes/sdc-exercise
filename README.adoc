@@ -54,6 +54,12 @@ So I'll treat it as ordinary data cell, that may contain valid data.
 
 == Sources used
 
+=== AKS implementation
+
+Has been obtained from https://github.com/smanikar/primality-testing/blob/master/src/aks-final/AKS.java[smanikar/primality-testing].
+
+=== Informational sources
+
 * https://jdk.java.net/25/
 * https://maven.apache.org/download.cgi
 * https://github.com/junit-team/junit-examples/blob/r6.0.0/junit-jupiter-starter-maven/pom.xml
@@ -69,3 +75,8 @@ So I'll treat it as ordinary data cell, that may contain valid data.
 * https://logging.apache.org/log4j/2.x/manual/installation.html
 * https://projectlombok.org/setup/maven
 * https://logging.apache.org/log4j/2.x/manual/getting-started.html
+* https://stackoverflow.com/a/16699049/9556542
+* https://commons.apache.org/proper/commons-lang/
+* https://en.wikipedia.org/wiki/Primality_test
+* https://en.wikipedia.org/wiki/AKS_primality_test
+* https://stackoverflow.com/questions/4009198/java-get-greatest-common-divisor
