@@ -23,7 +23,7 @@ public class Outputter implements Runnable {
     @Override
     public void run() {
 
-        while(true) {
+        while (true) {
 
             try {
                 pq.add(inputAbq.take());

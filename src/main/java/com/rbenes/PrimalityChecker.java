@@ -40,18 +40,19 @@ public class PrimalityChecker implements Runnable {
                     break;
                 }
 
+                log.debug("Processing cell B{}", cell.getVisualRowIndex());
+
                 cell.computePrimality(aks);
                 
                 outputAbq.put(cell);                
 
             } catch (InterruptedException ie) {
-                log.error("PrimalityChecker {} has been interrupted", ie);
+                log.error("PrimalityChecker has been interrupted", ie);
                 return;
             }
         }
 
-        log.debug("Thread {} is done.",
-            Thread.currentThread().getName());        
+        log.debug("Thread is done.");        
     }
 }
 

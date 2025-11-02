@@ -12,7 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class PrimesChecker {
+public class SdcExercise {
 
     // TODO: use properties for constants (sheet number, column...)
     // TODO: why is the 'x' value considered as 2?
