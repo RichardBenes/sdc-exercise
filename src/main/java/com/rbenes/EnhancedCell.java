@@ -1,6 +1,5 @@
 package com.rbenes;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 
@@ -72,6 +71,16 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
         return numericValue;
     }
 
+    public String getOriginalValue() {
+        if (cell.getCellType() == CellType.STRING) {
+            return cell.getStringCellValue();
+        } else if (cell.getCellType() == CellType.NUMERIC) {
+            return String.valueOf(cell.getNumericCellValue());
+        } else {
+            return "<%s>".formatted(cell.getCellType());
+        }
+    }
+
     public boolean computePrimality(AKS aks) {
 
         if (primality == Primality.UNKNOWN_YET) {
@@ -137,29 +146,37 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
 
         if (cell.getCellType() == CellType.STRING) {
 
-            // I don't want the overhead of an exception every time there
-            // is a bad input - so I'm using Apache's lib
-            // Unfortunately, not even here can I properly distinguish between
-            // properly parsed default value, and failed parse.
-            // Luckily though, I don't care - if parsing failed,
-            // it's not an prime, and that's all I need to know.
-            this.numericValue = NumberUtils.toLong(cell.getStringCellValue().strip(), 2);
+            // Using exception handling for unparseable values
+            // is a bit wasteful...
+            try {
+                numericValue = Long.parseLong(
+                    cell.getStringCellValue().strip(), 
+                    10);
+            } catch (NumberFormatException nfe) {
+                numericValue = null;
+                primality = Primality.INVALID;
+            }
+
             return;
         }
         
         if (cell.getCellType() == CellType.NUMERIC) {
             
-            // This won't work for numbers with a large "span",
-            // like 500000001.00000001
+            // Check for non-integer numbers.
+            // This won't unfortunately work for numbers with a large "span",
+            // like 500000001.00000001...
             if (cell.getNumericCellValue() % 1.0D != 0.0D) {
                 this.numericValue = null;
+                primality = Primality.INVALID;
                 return;
             }
             
-            this.numericValue = Double.valueOf(cell.getNumericCellValue()).longValue();
+            this.numericValue = Double.valueOf(
+                cell.getNumericCellValue()).longValue();
             return;
         }
         
         this.numericValue = null;
+        primality = Primality.INVALID;
     }
 }

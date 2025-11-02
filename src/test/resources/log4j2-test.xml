@@ -6,16 +6,21 @@
                        https://logging.apache.org/xml/ns/log4j-config-2.xsd">
 
   <Appenders>
-    <Console name="CONSOLE">
+    <Console name="CONSOLE_FULL">
       <PatternLayout pattern="%5p %20c{1.} [%4t] - %m%n"/>
+    </Console>
+    <Console name="CONSOLE_SHORT">
+      <PatternLayout pattern="%m%n"/>
     </Console>
   </Appenders>
 
   <Loggers>
-    <Logger name="com.rbenes" level="DEBUG"/>
-    <Root level="WARN">
-      <AppenderRef ref="CONSOLE"/>
+    <Root level="INFO">
+      <AppenderRef ref="CONSOLE_SHORT"/>
     </Root>
+    <!-- <Logger name="com.rbenes" level="DEBUG"> 
+      <AppenderRef ref="CONSOLE_FULL" />
+    </Logger> -->
   </Loggers>
 
 </Configuration>

@@ -70,14 +70,15 @@ public class Outputter implements Runnable {
     private void logCell(EnhancedCell cell) {
 
         if (cell.isPrime()) {
-            log.info("B{} has PRIME value {}", 
+            log.info("{}", cell.getNumericValue());
+            log.debug("B{} has PRIME value {}", 
                 cell.getVisualRowIndex(),
                 cell.getNumericValue());
         } else {
             log.debug("B{} has {} value {}", 
                 cell.getVisualRowIndex(),
                 cell.getPrimality(),
-                cell.getNumericValue());
+                cell.getOriginalValue());
         }        
     }
     

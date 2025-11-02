@@ -11,21 +11,20 @@ java -jar .\target\sdc-exercise-1.0-SNAPSHOT-jar-with-dependencies.jar -- '.\vzo
 This app is built using Java 25 and Maven 3.9.11.
 VS Code has been used as a code editor, with the https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack[Extension Pack for Java] extension.
 
-== Misc.
-
-VisualIndex = the index that is shown by spreadsheet's UI, it is 1-based.
-
-== What input file is expected
 
 == Multithreaded architecture
 
-Main thread reads values from the Excel file, and puts them in a queue.
+To speed up the processing, the app uses multiple threads:
 
-Then multiple worker threads, represented by the `PrimalityChecker` class,
-are picking the values, and are processing them.
-That works.
+* Main thread reads the XLSX file, parses out cells, and puts them to a queue
+* Worker threads (`PrimalityChecker`):
+** read cells from the queue and check the values & their primality
+** put the computed values to Outputter's queue
+* `Outputter` thread 
+** sorts the computted values (into the order in which they occured in the input file) 
+** and prints them to the screen
 
-But then we need to reorder them back. That's to be done yet.
+At the end, the Main thread `join()`s all the worker threads.
 
 == Decisions made during development
 
@@ -96,4 +95,3 @@ Has been obtained from https://github.com/smanikar/primality-testing/blob/master
 * https://stackoverflow.com/questions/4009198/java-get-greatest-common-divisor
 * https://youtu.be/rQ7BzfRz7OY?si=0xRl9nzpCdA8v6xn
 * https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3
-* https://stackoverflow.com/a/4759606/9556542

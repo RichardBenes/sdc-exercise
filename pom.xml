@@ -56,11 +56,6 @@
       <artifactId>poi-ooxml</artifactId>
       <version>5.4.1</version> 
     </dependency>
-    <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.19.0</version>
-    </dependency>
     <!-- "Accessories" (not directly related to the task) -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -99,7 +94,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.rbenes.PrimesChecker</mainClass>
+              <mainClass>com.rbenes.SdcExercise</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -135,7 +130,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>com.rbenes.PrimesChecker</mainClass>
+              <mainClass>com.rbenes.SdcExercise</mainClass>
             </manifest>
           </archive>
         </configuration>

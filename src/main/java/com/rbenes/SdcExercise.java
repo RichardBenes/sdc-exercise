@@ -14,8 +14,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class SdcExercise {
 
-    // TODO: use properties for constants (sheet number, column...)
-    // TODO: properly mark unparseable values as INVALID, not 2
+    // TODO: use properties for constants (n of threads, sheet number, column...)
     public static void main( String[] args ) throws InvalidFormatException, IOException {
 
         if (args.length != 2) {
@@ -25,11 +24,12 @@ public class SdcExercise {
 
         ArrayBlockingQueue<EnhancedCell> workseetToWorkerThreadsLoadingQueue = new ArrayBlockingQueue<>(5);
         ArrayBlockingQueue<EnhancedCell> workThreadToOutputterShippingQueue = new ArrayBlockingQueue<>(5);
+        
+        int cores = Runtime.getRuntime().availableProcessors();
 
-        // https://stackoverflow.com/a/4759606/9556542
-        // int cores = Runtime.getRuntime().availableProcessors();
-        int nOfThreads = 3;
-        Thread[] threads = new Thread[nOfThreads];
+        Thread[] threads = new Thread[cores];
+
+        log.debug("Running with {} threads", cores);
 
         for (int i = 0; i < threads.length; i += 1) {
             threads[i] = new Thread(
@@ -52,7 +52,7 @@ public class SdcExercise {
 
             Sheet sheet = w.getSheetAt(0);
 
-            log.info("Last row has number {}, and there are {} phys. rows", 
+            log.debug("Last row has number {}, and there are {} phys. rows", 
                 sheet.getLastRowNum(),
                 sheet.getPhysicalNumberOfRows());
 
@@ -61,7 +61,7 @@ public class SdcExercise {
                 EnhancedCell cellB = new EnhancedCell(row.getCell(1));
 
                 workseetToWorkerThreadsLoadingQueue.put(cellB);
-                log.info("Added cell B{} to the queue.", cellB.getVisualRowIndex());
+                log.debug("Added cell B{} to the queue.", cellB.getVisualRowIndex());
             }
 
             workseetToWorkerThreadsLoadingQueue.put(EnhancedCell.createEndOfProcessingCell());
