@@ -67,6 +67,8 @@ So I'll treat it as ordinary data cell, that may contain valid data.
 
 == Dev-related
 
+=== JShell
+
 I tried using https://github.com/johnpoth/jshell-maven-plugin[`jshell-maven-plugin`]
 so I could familiarize myself interactively with APIs I use.
 It proved to be quite useful -- it prepares the JShell REPL with all the dependencies
@@ -77,6 +79,26 @@ The command to launch it is:
 [source,powershell]
 ----
 mvn jshell:run
+----
+
+=== Code coverage
+
+Just run
+
+[source, powershell]
+----
+mvn test
+mvn jacoco:report
+----
+
+and then open the `/target/site/jacoco/index.html`.
+
+To see coverage provided by a single test, run:
+
+[source,powershell]
+----
+mvn clean test -Dtest=EnhancedCellTest
+mvn jacoco:report
 ----
 
 == Sources used
@@ -114,3 +136,5 @@ I tried running the `AKSTest#testAKS` in parallel (jUnit allows that), but it di
 * https://github.com/johnpoth/jshell-maven-plugin
 * https://www.baeldung.com/junit-5-parallel-tests
 * https://docs.junit.org/current/user-guide/#writing-tests-parallel-execution
+* https://www.baeldung.com/jacoco
+* https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
