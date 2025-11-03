@@ -65,11 +65,27 @@ Well, after spending too much time on this, I'm moving on, perhaps solving this 
 It's not specified by the assignment.
 So I'll treat it as ordinary data cell, that may contain valid data.
 
+== Dev-related
+
+I tried using https://github.com/johnpoth/jshell-maven-plugin[`jshell-maven-plugin`]
+so I could familiarize myself interactively with APIs I use.
+It proved to be quite useful -- it prepares the JShell REPL with all the dependencies
+from `pom.xml` loaded and ready to be imported.
+
+The command to launch it is:
+
+[source,powershell]
+----
+mvn jshell:run
+----
+
 == Sources used
 
 === AKS implementation
 
 Has been obtained from https://github.com/smanikar/primality-testing/blob/master/src/aks-final/AKS.java[smanikar/primality-testing].
+
+I tried running the `AKSTest#testAKS` in parallel (jUnit allows that), but it didn't bring any signigicant time saving. 
 
 === Informational sources
 
@@ -95,3 +111,6 @@ Has been obtained from https://github.com/smanikar/primality-testing/blob/master
 * https://stackoverflow.com/questions/4009198/java-get-greatest-common-divisor
 * https://youtu.be/rQ7BzfRz7OY?si=0xRl9nzpCdA8v6xn
 * https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3
+* https://github.com/johnpoth/jshell-maven-plugin
+* https://www.baeldung.com/junit-5-parallel-tests
+* https://docs.junit.org/current/user-guide/#writing-tests-parallel-execution

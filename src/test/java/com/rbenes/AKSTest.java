@@ -15,7 +15,7 @@ public class AKSTest {
             5645657, true
             5799555, false
             15619, true
-            5221652, false,
+            5221652, false
             1234187, true
             9584, false
             211, true
