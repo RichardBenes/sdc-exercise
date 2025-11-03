@@ -22,6 +22,7 @@ public class SdcExercise {
             System.exit(-1);
         }
 
+        // TODO: queue capacities - as config properties
         ArrayBlockingQueue<EnhancedCell> workseetToWorkerThreadsLoadingQueue = new ArrayBlockingQueue<>(5);
         ArrayBlockingQueue<EnhancedCell> workThreadToOutputterShippingQueue = new ArrayBlockingQueue<>(5);
         
@@ -35,7 +36,8 @@ public class SdcExercise {
             threads[i] = new Thread(
                 new PrimalityChecker(
                     workseetToWorkerThreadsLoadingQueue, 
-                    workThreadToOutputterShippingQueue), 
+                    workThreadToOutputterShippingQueue,
+                    new AKS()), 
                     "tw%s".formatted(i));
 
             threads[i].start();

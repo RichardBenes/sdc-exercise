@@ -14,9 +14,10 @@ public class PrimalityChecker implements Runnable {
 
     public PrimalityChecker(
         ArrayBlockingQueue<EnhancedCell> inputAbq,
-        ArrayBlockingQueue<EnhancedCell> outputAbq
+        ArrayBlockingQueue<EnhancedCell> outputAbq,
+        AKS aks
     ) {
-        this.aks = new AKS();
+        this.aks = aks;
         this.inputAbq = inputAbq;
         this.outputAbq = outputAbq;
     }
