@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
+// TODO: remove hardcoded column B
 @Log4j2
 public class EnhancedCell implements Comparable<EnhancedCell> {
 
@@ -87,17 +88,12 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
             computeCellsNumericContent();
         }
 
-        if (numericValue == null) {
-            this.primality = Primality.INVALID;
+        if (primality == Primality.INVALID) {
             return false;
         }
 
-        // I'll consider 2 more likely to occur - so I'll check it first,
-        // before computing the oddity via remainder
-        if (numericValue == 2 
-                || (numericValue % 2 == 0) 
-                || (numericValue % 5 == 0)
-        ) {
+        // Let's first check for trivial cases
+        if ((numericValue % 2 == 0) || (numericValue % 5 == 0)) {
             this.primality = Primality.COMPOSITE;
             return false;
         }
@@ -113,70 +109,59 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
 
     public String getCellInfo() {
 
-        int rowNum = cell.getRowIndex() + 1;
-
-        if (cell.getCellType() == CellType.NUMERIC) {
-
-            return "Cell B%s has num value %s, prime: %s"
-                .formatted(
-                    getVisualRowIndex(),
-                    Double.toString(cell.getNumericCellValue()),
-                    primality);
-
-        } else if (cell.getCellType() == CellType.STRING) {
-
-            return "Cell B%s has str value %s, prime: %s"
-                .formatted(
-                    getVisualRowIndex(),
-                    cell.getStringCellValue(),
-                    primality);
-
-        } else {
-
-            return "Cell B{} is of type {} - such cells are ignored by this program"
-                .formatted(
-                    rowNum,
-                    cell.getCellType());
-        }
+        return switch (cell.getCellType()) {
+            case CellType.NUMERIC ->
+                "Cell B%s has num value %s, prime: %s"
+                    .formatted(
+                        getVisualRowIndex(),
+                        Double.toString(cell.getNumericCellValue()),
+                        primality);
+            case CellType.STRING ->
+                "Cell B%s has str value %s, prime: %s"
+                    .formatted(
+                        getVisualRowIndex(),
+                        cell.getStringCellValue(),
+                        primality);
+            default ->
+                "Cell B%s is of type %s - such cells are ignored by this program"
+                    .formatted(
+                        getVisualRowIndex(),
+                        cell.getCellType());
+        };
     }
 
     public void computeCellsNumericContent() {
 
         this.primality = Primality.UNKNOWN_YET_NUMVAL_COMPUTED;
 
-        if (cell.getCellType() == CellType.STRING) {
+        switch (cell.getCellType()) {
+            case CellType.STRING -> {
+                    try {
+                        numericValue = Long.parseLong(
+                            cell.getStringCellValue().strip(), 
+                            10);
+                    } catch (NumberFormatException nfe) {
+                        numericValue = null;
+                        primality = Primality.INVALID;
+                    }
+                }
 
-            // Using exception handling for unparseable values
-            // is a bit wasteful...
-            try {
-                numericValue = Long.parseLong(
-                    cell.getStringCellValue().strip(), 
-                    10);
-            } catch (NumberFormatException nfe) {
-                numericValue = null;
-                primality = Primality.INVALID;
-            }
-
-            return;
-        }
-        
-        if (cell.getCellType() == CellType.NUMERIC) {
-            
-            // Check for non-integer numbers.
-            // This won't unfortunately work for numbers with a large "span",
-            // like 500000001.00000001...
-            if (cell.getNumericCellValue() % 1.0D != 0.0D) {
-                this.numericValue = null;
-                primality = Primality.INVALID;
-                return;
-            }
-            
-            this.numericValue = Double.valueOf(
-                cell.getNumericCellValue()).longValue();
-            return;
-        }
-        
-        this.numericValue = null;
-        primality = Primality.INVALID;
+            case CellType.NUMERIC -> {
+                    // Check for non-integer numbers.
+                    // This won't unfortunately work for numbers with a large "span",
+                    // like 500000001.00000001...
+                    if (cell.getNumericCellValue() % 1.0D != 0.0D) {
+                        this.numericValue = null;
+                        primality = Primality.INVALID;
+                    } else {
+                        this.numericValue = Double.valueOf(
+                            cell.getNumericCellValue()).longValue();
+                    }
+                }
+            default -> {
+                    this.numericValue = null;
+                    primality = Primality.INVALID;                
+                }
+        };
     }
 }

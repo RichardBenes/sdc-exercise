@@ -74,6 +74,11 @@
       <version>${lombok.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.17.8</version>
+    </dependency>
     <!-- Testing-related -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
