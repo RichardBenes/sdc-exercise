@@ -13,7 +13,7 @@
 
   <Loggers>
     <Root level="INFO">
-      <AppenderRef ref="CONSOLE"/>
+      <AppenderRef ref="CONSOLE" />
     </Root>
   </Loggers>
 

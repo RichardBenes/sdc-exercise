@@ -67,6 +67,17 @@ So I'll treat it as ordinary data cell, that may contain valid data.
 
 == Dev-related
 
+=== Testing standard output
+
+Finally, it works. It has been useful to create a https://github.com/RichardBenes/log4j2-tryout[separate project] just to figure it out.
+
+The final solution is quite cumbersome, and it would be probably much better to use jUnit's https://docs.junit.org/current/user-guide/#running-tests-capturing-output[built-in] functionality... but that's yet another chapter.
+
+So currently, I'm pretty much "just" adding another `Appender` to the Log4J2 config, which captures the log messages (only the `%m` part though) in memory, so I could check that later.
+There's quite a lot bolierplate code associated with that, and maybe it could be simplified by declaring the appender in the Xml config.
+
+What's nice -- this allows for testing the whole app, using only its `main()` entry point, and checking exactly what matters -- the data sent to the standard output. And all of that from within jUnit tests.
+
 === JShell
 
 I tried using https://github.com/johnpoth/jshell-maven-plugin[`jshell-maven-plugin`]
@@ -138,3 +149,9 @@ I tried running the `AKSTest#testAKS` in parallel (jUnit allows that), but it di
 * https://docs.junit.org/current/user-guide/#writing-tests-parallel-execution
 * https://www.baeldung.com/jacoco
 * https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+* https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/reflect/Field.html#get(java.lang.Object)
+* https://www.baeldung.com/java-reflection-read-private-field-value
+* https://docs.junit.org/current/user-guide/#writing-tests-test-execution-order-methods
+* https://docs.oracle.com/javase/8/docs/api/java/io/ObjectOutputStream.html
+* https://logging.apache.org/log4j/2.x/javadoc/log4j-core/org/apache/logging/log4j/core/appender/OutputStreamAppender.html
+* https://logging.apache.org/log4j/2.x/manual/architecture.html
