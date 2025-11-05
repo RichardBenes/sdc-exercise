@@ -8,15 +8,14 @@ mvn package
 java -jar .\target\sdc-exercise-1.0-SNAPSHOT-jar-with-dependencies.jar -- '.\vzorek_dat - kopie.xlsx'
 ----
 
-This app is built using Java 25 and Maven 3.9.11.
+This app is built using https://jdk.java.net/25/[Java 25] and https://maven.apache.org/docs/3.9.11/release-notes.html[Maven 3.9.11].
 VS Code has been used as a code editor, with the https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack[Extension Pack for Java] extension.
-
 
 == Multithreaded architecture
 
 To speed up the processing, the app uses multiple threads:
 
-* Main thread reads the XLSX file, parses out cells, and puts them to a queue
+* Main thread is reading the XLSX file, parsing out cells as `Cell` instances, and puting those as `EnhancedCell`s them to a queue
 * Worker threads (`PrimalityChecker`):
 ** read cells from the queue and check the values & their primality
 ** put the computed values to Outputter's queue
@@ -26,17 +25,15 @@ To speed up the processing, the app uses multiple threads:
 
 At the end, the Main thread `join()`s all the worker threads.
 
-== Decisions made during development
+== Development-related questions & decisions
 
 === Which Excel library should I use?
 
 This https://www.baeldung.com/java-microsoft-excel[Baeldung article] mentions three -- Apache POI, JExcel and Fastexcel.
-Since I only need to _read_ `*.xlsx` files, JExcel is out -- it only supports older `*.xls` files.
+Since I need to read `*.xlsx` files, JExcel is out -- it only supports older `*.xls` files.
 Fastexcel is developed with emphasis on quick generation of files, but in general supports less `*.xlsx`-related features.
 
-My bottleneck will most likely be the prime check, not the reading (that will happen only once) -- so I'll pick Apache POI,
-as it seems to be the most versatile tool -- in case I'd need to do anything else Excel-related in future, this seems to be
-pretty likely to support it.
+My bottleneck will most likely be the prime check, not the reading (that will happen only once) -- so I'll pick Apache POI, as it seems to be the most versatile tool -- in case I'd need to do anything else Excel-related in future, this seems to be pretty likely to support it.
 
 === How to approach logging?
 
@@ -49,23 +46,12 @@ I'll use Log4j, since:
 
 I don't like the explicit `LogManager.getLogger()` stuff -- so this is the perfect time to also introduce Lombok.
 
-=== How to test the standard output?
-
-The app is supposed to give output via stdout using a Logger.
-This makes it tricky to test -- jUnit nor logging frameworks seem to have any
-significant support for testing the logged messages.
-
-Only exception is `OutputCaptureExtension` from Spring Boot... but I'd like to
-avoid introducing Spring Boot here.
-
-Well, after spending too much time on this, I'm moving on, perhaps solving this later.
-
 === Is the first row allways gonna contain 'Data' string?
 
 It's not specified by the assignment.
 So I'll treat it as ordinary data cell, that may contain valid data.
 
-== Dev-related
+== Dev-related notes
 
 === Testing standard output
 
@@ -114,11 +100,13 @@ mvn jacoco:report
 
 == Sources used
 
-=== AKS implementation
+=== Primality cheking algorithm & its implementation
+
+From Wikipedia, I found out that the https://en.wikipedia.org/wiki/AKS_primality_test[AKS] algorithm is currently pretty much the best option if deterministic results are required. From the assignment it seems to be the case, so I used that.
 
 Has been obtained from https://github.com/smanikar/primality-testing/blob/master/src/aks-final/AKS.java[smanikar/primality-testing].
 
-I tried running the `AKSTest#testAKS` in parallel (jUnit allows that), but it didn't bring any signigicant time saving. 
+I tried running the `AKSTest#testAKS` in parallel (https://docs.junit.org/current/user-guide/#writing-tests-parallel-execution[jUnit allows that]), but it didn't bring any signigicant time saving. 
 
 === Informational sources
 
