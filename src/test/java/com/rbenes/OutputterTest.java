@@ -5,21 +5,70 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Field;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.OutputStreamAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class OutputterTest {
+
+    Outputter testedOutputter;
+    ArrayBlockingQueue<EnhancedCell> inputQueue;
+
+    static final String TEST_APPENDER_NAME = "addedTestAppender";
+
+    // This is all necessary to capture Outputter's output...
+    Logger outputtersLogger;
+    LoggerContext outputtersLoggerContext;
+    Configuration outputtersConfiguration;
+    ByteArrayOutputStream outputtersOutput;
+    OutputStreamAppender osa;
+
+    @BeforeEach
+    void beforeEach() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+
+        inputQueue = new ArrayBlockingQueue<>(5);
+        testedOutputter = new Outputter(inputQueue);
+
+        // Some reflection magic...
+        Field logField = testedOutputter.getClass().getDeclaredField("log");
+        logField.setAccessible(true);
+
+        outputtersLogger = (Logger) logField.get(testedOutputter);
+        outputtersLoggerContext = outputtersLogger.getContext();
+        outputtersConfiguration = outputtersLoggerContext.getConfiguration();
+
+        outputtersOutput = new ByteArrayOutputStream();
+
+        osa = OutputStreamAppender.newBuilder()
+            .setName(TEST_APPENDER_NAME)
+            .setTarget(outputtersOutput)
+            .build();
+        
+        outputtersConfiguration.addLoggerAppender(outputtersLogger, osa);
+
+        osa.start();
+    }
+
+    @AfterEach
+    void afterEach() {
+
+        outputtersConfiguration.getAppenders().remove(TEST_APPENDER_NAME);
+        outputtersLoggerContext.reconfigure();
+    }
+
     
     @Test
     void singleThreaded_success() {
 
         // Arrange
-
-        var inputQueue = new ArrayBlockingQueue<EnhancedCell>(5);
-
-        Outputter outputter = new Outputter(inputQueue);
 
         EnhancedCell e1 = mock(EnhancedCell.class);
         when(e1.isEndOfProcessingCell()).thenReturn(false);
@@ -68,13 +117,21 @@ public class OutputterTest {
 
         // Act
 
-        outputter.run();
+        testedOutputter.run();
 
         // Assert
 
         // Even the end of processing is removed and moved to an internal queue
         assertThat(inputQueue.size()).isEqualTo(0);
-
-        // TODO: assert what Outputter outputted!
+        
+        osa.stop();
+        var output = outputtersOutput.toString();
+        
+        assertThat(output).isEqualToIgnoringNewLines(
+            """
+            13
+            23
+            31
+            """);
     }
 }
