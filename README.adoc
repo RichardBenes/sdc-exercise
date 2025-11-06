@@ -17,15 +17,18 @@ To speed up the processing, the app uses multiple threads communicating using qu
 
 === Queues used
 
-* `main2PCQ`: 
-** `Main` thread adds cells read from the XLSX file to this queue
-** `PrimalityChecker` threads read from this queue
-* `PC2OutQ`:
-** `PrimalityChecker` threads put cells with computed primality to this queue; these
-    arrive in unspecified order
-** `Outputter` thread reads cells from it
-* `sortQ`
-** `Outputter` thread uses it internally to sort incoming cells
+[%header, cols="10,45,45"]
+|===
+| Queue | Who writes to it | Who reads from it
+| `main2PCQ` 
+    | `Main` thread adds cells read from the XLSX file to this queue 
+    | `PrimalityChecker` threads read from this queue
+| `PC2OutQ`
+    | `PrimalityChecker` threads put cells with computed primality to this queue; these arrive in unspecified order
+    | `Outputter` thread reads cells from it
+| `sortQ`
+    2+^| `Outputter` thread uses it internally to sort incoming cells
+|===
 
 === Shutting down
 
