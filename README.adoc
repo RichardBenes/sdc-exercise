@@ -53,7 +53,7 @@ image::multithreaded-arch.png[]
 === Which Excel library should I use?
 
 This https://www.baeldung.com/java-microsoft-excel[Baeldung article] mentions three -- Apache POI, JExcel and Fastexcel.
-Since I need to read `*.xlsx` files, JExcel is out -- it only supports older `*.xls` files.
+Since I need to read `.xlsx` files, JExcel is out -- it only supports older `.xls` files.
 Fastexcel is developed with emphasis on quick generation of files, but in general supports less `*.xlsx`-related features.
 
 My bottleneck will most likely be the prime check, not the reading (that will happen only once) -- so I'll pick Apache POI, as it seems to be the most versatile tool -- in case I'd need to do anything else Excel-related in future, this seems to be pretty likely to support it.
@@ -65,9 +65,9 @@ I'll use Log4j, since:
 
 * I'm used to work with it;
 * Apache POI does already use it
-* It does implement a [`Logger`]https://logging.apache.org/log4j/2.x/javadoc/log4j-api/org/apache/logging/log4j/Logger.html class.
+* It does implement a [Logger]https://logging.apache.org/log4j/2.x/javadoc/log4j-api/org/apache/logging/log4j/Logger.html class as the instructions deem
 
-I don't like the explicit `LogManager.getLogger()` stuff -- so this is the perfect time to also introduce Lombok.
+I don't like the explicit `LogManager.getLogger()` stuff -- so this is the perfect time to also introduce https://projectlombok.org/features/log[Lombok].
 
 === Is the first row allways gonna contain 'Data' string?
 
@@ -82,8 +82,8 @@ Finally, it works. It has been useful to create a https://github.com/RichardBene
 
 The final solution is quite cumbersome, and it would be probably much better to use jUnit's https://docs.junit.org/current/user-guide/#running-tests-capturing-output[built-in] functionality... but that's yet another chapter.
 
-So currently, I'm pretty much "just" adding another `Appender` to the Log4J2 config, which captures the log messages (only the `%m` part though) in memory, so I could check that later.
-There's quite a lot bolierplate code associated with that, and maybe it could be simplified by declaring the appender in the Xml config.
+So currently, I'm pretty much "just" adding another `Appender` to the Log4J2 config at runtime, which captures the log messages (only the `%m` part though) in memory, so I could check and assert that later.
+There's quite a lot bolierplate code associated with that, and maybe it could be simplified by declaring the appender in the XML config.
 
 What's nice -- this allows for testing the whole app, using only its `main()` entry point, and checking exactly what matters -- the data sent to the standard output. And all of that from within jUnit tests.
 
@@ -123,7 +123,7 @@ mvn jacoco:report
 
 == PlantUML
 
-To create the diagrams here, https://plantuml.com/starting[PlantUML] has been used.
+To create the diagrams in this README, https://plantuml.com/starting[PlantUML] has been used.
 The code is in the `*.puml` files, and they have been rendered manually. 
 So yes, the resulting PNG files are included in the version control...
 
@@ -138,6 +138,8 @@ Implementation has been obtained from https://github.com/smanikar/primality-test
 I tried running the `AKSTest#testAKS` in parallel (https://docs.junit.org/current/user-guide/#writing-tests-parallel-execution[jUnit allows that]), but it didn't bring any signigicant time saving. 
 
 === Informational sources
+
+Using AI has been denied. So I had to use "good ol' interned"...
 
 * https://jdk.java.net/25/
 * https://maven.apache.org/download.cgi
