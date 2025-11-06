@@ -13,17 +13,40 @@ VS Code has been used as a code editor, with the https://marketplace.visualstudi
 
 == Multithreaded architecture
 
-To speed up the processing, the app uses multiple threads:
+To speed up the processing, the app uses multiple threads communicating using queues.
 
-* Main thread is reading the XLSX file, parsing out cells as `Cell` instances, and puting those as `EnhancedCell`s them to a queue
-* Worker threads (`PrimalityChecker`):
-** read cells from the queue and check the values & their primality
-** put the computed values to Outputter's queue
-* `Outputter` thread 
-** sorts the computted values (into the order in which they occured in the input file) 
-** and prints them to the screen
+=== Queues used
 
-At the end, the Main thread `join()`s all the worker threads.
+* `main2PCQ`: 
+** `Main` thread adds cells read from the XLSX file to this queue
+** `PrimalityChecker` threads read from this queue
+* `PC2OutQ`:
+** `PrimalityChecker` threads put cells with computed primality to this queue; these
+    arrive in unspecified order
+** `Outputter` thread reads cells from it
+* `sortQ`
+** `Outputter` thread uses it internally to sort incoming cells
+
+=== Shutting down
+
+The threads need to somehow know that there won't be any further cells coming in, and that they can end their existence (alternative would be to shut them down from the main thread).
+
+This is done by adding an `EnhancedCell` (that's the class used to represent a cell) that is specifically marked as "End of Processing" (EOC). The shutdown sequence (and the whole processing) goes like this:
+
+. Main thread puts all the cells from the XLSX file to the `main2PCQ` queue
+. Then it puts in the EOC (so it is always the last cell added)
+. When `PrimalityChecker` threads get this cell from the `main2PCQ`, they shut down (but they put it back first -- so all of them have the chance of seeing it)
+. Main thread waits for all `PrimalityChecker` threads to join
+** Now there is only the EOC left in `main2PCQ`
+. Then it puts EOC to the `PC2OutQ`
+. `Outputter` thread processes all the cells from `PC2OutQ` until it sees EOC, then it ends
+. Main waits for the `Outputter` thread to join
+
+The `Outputter` is checking that it has all the cells using their row ID. That means that if cells with row ID 1, 2, 5, 6, and 7 come in, it only processes cells 1 and 2, and then waits until cell with row ID 3 comes in.
+
+=== Graphical representation
+
+image::multithreaded-arch.png[]
 
 == Development-related questions & decisions
 
@@ -98,13 +121,19 @@ mvn clean test -Dtest=EnhancedCellTest
 mvn jacoco:report
 ----
 
+== PlantUML
+
+To create the diagrams here, https://plantuml.com/starting[PlantUML] has been used.
+The code is in the `*.puml` files, and they have been rendered manually. 
+So yes, the resulting PNG files are included in the version control...
+
 == Sources used
 
 === Primality cheking algorithm & its implementation
 
 From Wikipedia, I found out that the https://en.wikipedia.org/wiki/AKS_primality_test[AKS] algorithm is currently pretty much the best option if deterministic results are required. From the assignment it seems to be the case, so I used that.
 
-Has been obtained from https://github.com/smanikar/primality-testing/blob/master/src/aks-final/AKS.java[smanikar/primality-testing].
+Implementation has been obtained from https://github.com/smanikar/primality-testing/blob/master/src/aks-final/AKS.java[smanikar/primality-testing].
 
 I tried running the `AKSTest#testAKS` in parallel (https://docs.junit.org/current/user-guide/#writing-tests-parallel-execution[jUnit allows that]), but it didn't bring any signigicant time saving. 
 

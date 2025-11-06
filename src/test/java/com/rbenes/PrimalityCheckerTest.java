@@ -21,7 +21,7 @@ public class PrimalityCheckerTest {
 
         // Arrange
 
-        ArrayBlockingQueue<EnhancedCell> inputAbq = 
+        ArrayBlockingQueue<EnhancedCell> testMain2PCQ = 
             new ArrayBlockingQueue<>(5);
         
         ArrayBlockingQueue<EnhancedCell> outputAbq =
@@ -29,7 +29,7 @@ public class PrimalityCheckerTest {
         
         AKS aks = mock(AKS.class);
 
-        PrimalityChecker pChecker = new PrimalityChecker(inputAbq, outputAbq, aks);
+        PrimalityChecker pChecker = new PrimalityChecker(testMain2PCQ, outputAbq, aks);
 
         EnhancedCell e1 = mock(EnhancedCell.class);
         when(e1.isEndOfProcessingCell()).thenReturn(false);
@@ -49,7 +49,7 @@ public class PrimalityCheckerTest {
         EnhancedCell eEndOfProc = mock(EnhancedCell.class);
         when(eEndOfProc.isEndOfProcessingCell()).thenReturn(true);
 
-        inputAbq.addAll(List.of(e1, e2, e3, eEndOfProc));
+        testMain2PCQ.addAll(List.of(e1, e2, e3, eEndOfProc));
 
         // Act
         pChecker.run();
@@ -57,8 +57,8 @@ public class PrimalityCheckerTest {
         // Assert
 
         // The end of processing cell should remain in the queue
-        assertThat(inputAbq.size()).isEqualTo(1);
-        assertThat(inputAbq.take().isEndOfProcessingCell()).isTrue();
+        assertThat(testMain2PCQ.size()).isEqualTo(1);
+        assertThat(testMain2PCQ.take().isEndOfProcessingCell()).isTrue();
 
         // And there should be some results in the output queue...
         assertThat(outputAbq.size()).isEqualTo(3);

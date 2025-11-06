@@ -23,8 +23,8 @@ public class SdcExercise {
         }
 
         // TODO: queue capacities - as config properties
-        ArrayBlockingQueue<EnhancedCell> workseetToWorkerThreadsLoadingQueue = new ArrayBlockingQueue<>(5);
-        ArrayBlockingQueue<EnhancedCell> workThreadToOutputterShippingQueue = new ArrayBlockingQueue<>(5);
+        ArrayBlockingQueue<EnhancedCell> main2PCQ = new ArrayBlockingQueue<>(5);
+        ArrayBlockingQueue<EnhancedCell> PC2OutQ = new ArrayBlockingQueue<>(5);
         
         int cores = Runtime.getRuntime().availableProcessors();
 
@@ -35,15 +35,15 @@ public class SdcExercise {
         for (int i = 0; i < threads.length; i += 1) {
             threads[i] = new Thread(
                 new PrimalityChecker(
-                    workseetToWorkerThreadsLoadingQueue, 
-                    workThreadToOutputterShippingQueue,
+                    main2PCQ, 
+                    PC2OutQ,
                     new AKS()), 
                     "tw%s".formatted(i));
 
             threads[i].start();
         }
 
-        Outputter ou = new Outputter(workThreadToOutputterShippingQueue);
+        Outputter ou = new Outputter(PC2OutQ);
         Thread tou = new Thread(ou, "tou");
         tou.start();
 
@@ -62,17 +62,17 @@ public class SdcExercise {
 
                 EnhancedCell cellB = new EnhancedCell(row.getCell(1));
 
-                workseetToWorkerThreadsLoadingQueue.put(cellB);
+                main2PCQ.put(cellB);
                 log.debug("Added cell B{} to the queue.", cellB.getVisualRowIndex());
             }
 
-            workseetToWorkerThreadsLoadingQueue.put(EnhancedCell.createEndOfProcessingCell());
+            main2PCQ.put(EnhancedCell.createEndOfProcessingCell());
 
             for (Thread thread : threads) {
                 thread.join();
             }
 
-            workThreadToOutputterShippingQueue.put(EnhancedCell.createEndOfProcessingCell());
+            PC2OutQ.put(EnhancedCell.createEndOfProcessingCell());
             tou.join();
 
         } catch (FileNotFoundException f) {

@@ -9,15 +9,15 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class Outputter implements Runnable {
 
-    ArrayBlockingQueue<EnhancedCell> inputAbq;
-    PriorityQueue<EnhancedCell> orderedQueue;
+    ArrayBlockingQueue<EnhancedCell> PC2OutQ;
+    PriorityQueue<EnhancedCell> sortQ;
 
     int nextExpectedVisualIndex;
 
-    public Outputter(ArrayBlockingQueue<EnhancedCell> inputAbq) {
-        this.inputAbq = inputAbq;
+    public Outputter(ArrayBlockingQueue<EnhancedCell> PC2OutQ) {
+        this.PC2OutQ = PC2OutQ;
         this.nextExpectedVisualIndex = 1;
-        this.orderedQueue = new PriorityQueue<>();
+        this.sortQ = new PriorityQueue<>();
     }
 
     @Override
@@ -26,7 +26,7 @@ public class Outputter implements Runnable {
         while (true) {
 
             try {
-                orderedQueue.add(inputAbq.take());
+                sortQ.add(PC2OutQ.take());
 
                 if (drainPqAndFindEndOfProcessing(this::logCell)) {
                     break;
@@ -44,9 +44,9 @@ public class Outputter implements Runnable {
 
     private boolean drainPqAndFindEndOfProcessing(Consumer<EnhancedCell> processCell) {
 
-        while (!orderedQueue.isEmpty()) {
+        while (!sortQ.isEmpty()) {
 
-            EnhancedCell head = orderedQueue.peek();
+            EnhancedCell head = sortQ.peek();
 
             // If the head, that is, the element with the _lowest_ number
             // is endOfProcessing, it's clear that all the other elements
@@ -56,7 +56,7 @@ public class Outputter implements Runnable {
             }
 
             if (head.getVisualRowIndex() == nextExpectedVisualIndex) {
-                head = orderedQueue.remove();
+                head = sortQ.remove();
                 nextExpectedVisualIndex += 1;
                 processCell.accept(head);
             } else {

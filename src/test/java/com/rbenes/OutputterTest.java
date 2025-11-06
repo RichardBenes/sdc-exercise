@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 public class OutputterTest {
 
     Outputter testedOutputter;
-    ArrayBlockingQueue<EnhancedCell> inputQueue;
+    ArrayBlockingQueue<EnhancedCell> testPC2OutQ;
 
     static final String TEST_APPENDER_NAME = "addedTestAppender";
 
@@ -34,8 +34,8 @@ public class OutputterTest {
     @BeforeEach
     void beforeEach() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 
-        inputQueue = new ArrayBlockingQueue<>(5);
-        testedOutputter = new Outputter(inputQueue);
+        testPC2OutQ = new ArrayBlockingQueue<>(5);
+        testedOutputter = new Outputter(testPC2OutQ);
 
         // Some reflection magic...
         Field logField = testedOutputter.getClass().getDeclaredField("log");
@@ -108,12 +108,12 @@ public class OutputterTest {
         when(eEndOfProc.getVisualRowIndex()).thenReturn(Integer.MAX_VALUE);
 
         // Adding the cells _not_ sorted by visual row index
-        inputQueue.add(e1);
-        inputQueue.add(e3);
-        inputQueue.add(e2);
+        testPC2OutQ.add(e1);
+        testPC2OutQ.add(e3);
+        testPC2OutQ.add(e2);
         // But the EOP is always the last item added to Outputter's
         // input queue.
-        inputQueue.add(eEndOfProc);
+        testPC2OutQ.add(eEndOfProc);
 
         // Act
 
@@ -122,7 +122,7 @@ public class OutputterTest {
         // Assert
 
         // Even the end of processing is removed and moved to an internal queue
-        assertThat(inputQueue.size()).isEqualTo(0);
+        assertThat(testPC2OutQ.size()).isEqualTo(0);
         
         osa.stop();
         var output = outputtersOutput.toString();

@@ -1,0 +1,72 @@
+@startuml
+
+start
+
+floating note right: Blocking calls are orange.
+
+:Open XLSX file, create queues, spawn threads...;
+
+<style>
+.blocking {
+    BackgroundColor coral
+}
+</style>
+
+fork
+    partition Main thread {
+        while (Any cells in\nthe XLSX file?) is (yes)
+            :Get cell from file;
+            :Add cell to **main2PCQ**;
+        endwhile (no)
+        :Add EOP cell to **main2PCQ**;
+        :Join **main2PCQ**\nprocessing threads; <<blocking>>
+        :Add EOP cell\nto **PC2OutQ**;
+        :Join **PC2OutQ**\nprocessing thread; <<blocking>>
+    }
+fork again
+    partition Multiple PrimalityChecker threads {
+        :Get cell from **main2PCQ**; <<blocking>>
+        while (Cell is EOP?) is (no)
+            :Compute\ncell's\nprimality;
+            :Add result\nto **PC2OutQ**;
+            backward :Get\nanother\ncell\nfrom\n**main2PCQ**; <<blocking>>
+        endwhile (yes)
+        :Put EOP back in **main2PCQ**\n(so other PrimalityChecker\nthreads get it too);
+    }
+fork again
+    partition Single Outputter thread {
+        floating note right
+            The **sortQ** is a 
+            priority queue.
+            It sorts inserted
+            cells using their
+            Row ID.
+            This queue is
+            used only by
+            the Outputter
+            thread.
+            The EOP is added
+            to **PC2OutQ** 
+            by the main thread
+            only after all 
+            PrimalityChecker 
+            threads join.        
+        end note
+        repeat
+            :Wait for cell\nfrom **PC2OutQ**; <<blocking>>
+            :Put it to **sortQ**;
+            :Peek first cell from **sortQ**;
+            
+            if (Is it __not__ an EOP,\n and it does have the\nnext expected\nXLSX row ID?) then (yes)
+                :Pop it out;
+                :Print it to\nSTDOUT\nif it is prime;
+            endif
+            
+        repeat while (It has been an EOP) is (no)
+        ->yes;
+    }
+end fork
+
+stop
+
+@enduml

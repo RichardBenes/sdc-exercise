@@ -9,17 +9,17 @@ public class PrimalityChecker implements Runnable {
 
     boolean resultIsPrime;
     AKS aks;
-    ArrayBlockingQueue<EnhancedCell> inputAbq;
-    ArrayBlockingQueue<EnhancedCell> outputAbq;
+    ArrayBlockingQueue<EnhancedCell> main2PCQ;
+    ArrayBlockingQueue<EnhancedCell> PC2OutQ;
 
     public PrimalityChecker(
-        ArrayBlockingQueue<EnhancedCell> inputAbq,
-        ArrayBlockingQueue<EnhancedCell> outputAbq,
+        ArrayBlockingQueue<EnhancedCell> main2PCQ,
+        ArrayBlockingQueue<EnhancedCell> PC2OutQ,
         AKS aks
     ) {
         this.aks = aks;
-        this.inputAbq = inputAbq;
-        this.outputAbq = outputAbq;
+        this.main2PCQ = main2PCQ;
+        this.PC2OutQ = PC2OutQ;
     }
 
     @Override
@@ -30,13 +30,13 @@ public class PrimalityChecker implements Runnable {
         while (true) {
 
             try {
-                cell = inputAbq.take();
+                cell = main2PCQ.take();
 
                 if (cell.isEndOfProcessingCell()) {
 
                     // We need to inform everyone else too -
                     // - so we put it back first
-                    inputAbq.put(cell);
+                    main2PCQ.put(cell);
                     break;
                 }
 
@@ -44,7 +44,7 @@ public class PrimalityChecker implements Runnable {
 
                 cell.computePrimality(aks);
                 
-                outputAbq.put(cell);                
+                PC2OutQ.put(cell);                
 
             } catch (InterruptedException ie) {
                 log.error("PrimalityChecker has been interrupted", ie);
