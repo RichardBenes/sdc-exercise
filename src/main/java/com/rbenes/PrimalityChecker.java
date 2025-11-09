@@ -9,12 +9,12 @@ public class PrimalityChecker implements Runnable {
 
     boolean resultIsPrime;
     AKS aks;
-    ArrayBlockingQueue<EnhancedCell> main2PCQ;
-    ArrayBlockingQueue<EnhancedCell> PC2OutQ;
+    ArrayBlockingQueue<EnhancedCellI> main2PCQ;
+    ArrayBlockingQueue<EnhancedCellI> PC2OutQ;
 
     public PrimalityChecker(
-        ArrayBlockingQueue<EnhancedCell> main2PCQ,
-        ArrayBlockingQueue<EnhancedCell> PC2OutQ,
+        ArrayBlockingQueue<EnhancedCellI> main2PCQ,
+        ArrayBlockingQueue<EnhancedCellI> PC2OutQ,
         AKS aks
     ) {
         this.aks = aks;
@@ -25,26 +25,29 @@ public class PrimalityChecker implements Runnable {
     @Override
     public void run() {
 
-        EnhancedCell cell;
+        EnhancedCellI cell;
 
-        while (true) {
+        mainloop: while (true) {
 
             try {
                 cell = main2PCQ.take();
 
-                if (cell.isEndOfProcessingCell()) {
+                switch (cell) {
+                    case EnhancedCell ec -> {
+                        log.debug("Processing cell B{}", ec.getVisualRowIndex());
 
-                    // We need to inform everyone else too -
-                    // - so we put it back first
-                    main2PCQ.put(cell);
-                    break;
+                        ec.computePrimality(aks);
+                        
+                        PC2OutQ.put(ec);
+                    }
+
+                    case EndOfProcessingCell eoc -> {
+                        // We need to inform everyone else too -
+                        // - so we put it back first                        
+                        main2PCQ.put(eoc);
+                        break mainloop;
+                    }
                 }
-
-                log.debug("Processing cell B{}", cell.getVisualRowIndex());
-
-                cell.computePrimality(aks);
-                
-                PC2OutQ.put(cell);                
 
             } catch (InterruptedException ie) {
                 log.error("PrimalityChecker has been interrupted", ie);

@@ -25,16 +25,7 @@ public class EnhancedCellTest {
         var ec = new EnhancedCell(mock(Cell.class));
 
         assertThat(ec.getPrimality()).isEqualTo(Primality.UNKNOWN_YET);
-        assertThat(ec.isEndOfProcessingCell()).isFalse();
-    }
-
-    @Test
-    void endOfProcessing() {
-
-        var ec = EnhancedCell.createEndOfProcessingCell();
-
-        assertThat(ec.getPrimality()).isEqualTo(Primality.INVALID);
-        assertThat(ec.isEndOfProcessingCell()).isTrue();
+        assertThat(ec).isInstanceOf(EnhancedCell.class);
     }
 
     @ParameterizedTest
@@ -67,14 +58,6 @@ public class EnhancedCellTest {
         var ec = new EnhancedCell(cell);
 
         assertThat(ec.getVisualRowIndex()).isEqualTo(1);
-    }
-
-    @Test
-    void getVisualRowIndex_endOfProcessingCell() {
-
-        var ec = EnhancedCell.createEndOfProcessingCell();
-
-        assertThat(ec.getVisualRowIndex()).isEqualTo(Integer.MAX_VALUE);
     }
 
     @Test

@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 public class OutputterTest {
 
     Outputter testedOutputter;
-    ArrayBlockingQueue<EnhancedCell> testPC2OutQ;
+    ArrayBlockingQueue<EnhancedCellI> testPC2OutQ;
 
     static final String TEST_APPENDER_NAME = "addedTestAppender";
 
@@ -71,7 +71,6 @@ public class OutputterTest {
         // Arrange
 
         EnhancedCell e1 = mock(EnhancedCell.class);
-        when(e1.isEndOfProcessingCell()).thenReturn(false);
         when(e1.getVisualRowIndex()).thenReturn(1);
         when(e1.getNumericValue()).thenReturn(13L);
         when(e1.isPrime()).thenReturn(true);
@@ -81,31 +80,27 @@ public class OutputterTest {
         when(e1.compareTo(any())).thenAnswer(
             inv -> Integer.compare(
                 e1.getVisualRowIndex(),
-                inv.getArgument(0, EnhancedCell.class).getVisualRowIndex()));
+                inv.getArgument(0, EnhancedCellI.class).getVisualRowIndex()));
 
         EnhancedCell e2 = mock(EnhancedCell.class);
-        when(e2.isEndOfProcessingCell()).thenReturn(false);
         when(e2.getVisualRowIndex()).thenReturn(2);
         when(e2.getNumericValue()).thenReturn(23L);
         when(e2.isPrime()).thenReturn(true);
         when(e2.compareTo(any())).thenAnswer(
             inv -> Integer.compare(
                 e2.getVisualRowIndex(),
-                inv.getArgument(0, EnhancedCell.class).getVisualRowIndex()));
+                inv.getArgument(0, EnhancedCellI.class).getVisualRowIndex()));
 
         EnhancedCell e3 = mock(EnhancedCell.class);
-        when(e3.isEndOfProcessingCell()).thenReturn(false);
         when(e3.getVisualRowIndex()).thenReturn(3);
         when(e3.getNumericValue()).thenReturn(31L);
         when(e3.isPrime()).thenReturn(true);
         when(e3.compareTo(any())).thenAnswer(
             inv -> Integer.compare(
                 e3.getVisualRowIndex(),
-                inv.getArgument(0, EnhancedCell.class).getVisualRowIndex()));
+                inv.getArgument(0, EnhancedCellI.class).getVisualRowIndex()));
 
-        EnhancedCell eEndOfProc = mock(EnhancedCell.class);
-        when(eEndOfProc.isEndOfProcessingCell()).thenReturn(true);
-        when(eEndOfProc.getVisualRowIndex()).thenReturn(Integer.MAX_VALUE);
+        EndOfProcessingCell eEndOfProc = new EndOfProcessingCell();
 
         // Adding the cells _not_ sorted by visual row index
         testPC2OutQ.add(e1);

@@ -23,8 +23,8 @@ public class SdcExercise {
         }
 
         // TODO: queue capacities - as config properties
-        ArrayBlockingQueue<EnhancedCell> main2PCQ = new ArrayBlockingQueue<>(5);
-        ArrayBlockingQueue<EnhancedCell> PC2OutQ = new ArrayBlockingQueue<>(5);
+        ArrayBlockingQueue<EnhancedCellI> main2PCQ = new ArrayBlockingQueue<>(5);
+        ArrayBlockingQueue<EnhancedCellI> PC2OutQ = new ArrayBlockingQueue<>(5);
         
         int cores = Runtime.getRuntime().availableProcessors();
 
@@ -66,13 +66,13 @@ public class SdcExercise {
                 log.debug("Added cell B{} to the queue.", cellB.getVisualRowIndex());
             }
 
-            main2PCQ.put(EnhancedCell.createEndOfProcessingCell());
+            main2PCQ.put(new EndOfProcessingCell());
 
             for (Thread thread : threads) {
                 thread.join();
             }
 
-            PC2OutQ.put(EnhancedCell.createEndOfProcessingCell());
+            PC2OutQ.put(new EndOfProcessingCell());
             tou.join();
 
         } catch (FileNotFoundException f) {

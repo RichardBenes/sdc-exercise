@@ -9,12 +9,12 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class Outputter implements Runnable {
 
-    ArrayBlockingQueue<EnhancedCell> PC2OutQ;
-    PriorityQueue<EnhancedCell> sortQ;
+    ArrayBlockingQueue<EnhancedCellI> PC2OutQ;
+    PriorityQueue<EnhancedCellI> sortQ;
 
     int nextExpectedVisualIndex;
 
-    public Outputter(ArrayBlockingQueue<EnhancedCell> PC2OutQ) {
+    public Outputter(ArrayBlockingQueue<EnhancedCellI> PC2OutQ) {
         this.PC2OutQ = PC2OutQ;
         this.nextExpectedVisualIndex = 1;
         this.sortQ = new PriorityQueue<>();
@@ -46,21 +46,24 @@ public class Outputter implements Runnable {
 
         while (!sortQ.isEmpty()) {
 
-            EnhancedCell head = sortQ.peek();
+            EnhancedCellI head = sortQ.peek();
 
-            // If the head, that is, the element with the _lowest_ number
-            // is endOfProcessing, it's clear that all the other elements
-            // have been processed as well
-            if (head.isEndOfProcessingCell()) {
-                return true;
-            }
-
-            if (head.getVisualRowIndex() == nextExpectedVisualIndex) {
-                head = sortQ.remove();
-                nextExpectedVisualIndex += 1;
-                processCell.accept(head);
-            } else {
-                return false;
+            switch (head) {
+                case EnhancedCell ec -> {
+                    if (ec.getVisualRowIndex() == nextExpectedVisualIndex) {
+                        sortQ.remove();
+                        nextExpectedVisualIndex += 1;
+                        processCell.accept(ec);
+                    } else {
+                        return false;
+                    }
+                }
+                case EndOfProcessingCell _ -> { 
+                    // If the head, that is, the element with the _lowest_ number
+                    // is endOfProcessing, it's clear that all the other elements
+                    // have been processed as well                    
+                    return true; 
+                }
             }
         }
 
@@ -69,6 +72,7 @@ public class Outputter implements Runnable {
 
     private void logCell(EnhancedCell cell) {
 
+        // TODO: Maybe a crazy idea - introduce PrimeCell and match on that here?
         if (cell.isPrime()) {
             log.info("{}", cell.getNumericValue());
             log.debug("B{} has PRIME value {}", 

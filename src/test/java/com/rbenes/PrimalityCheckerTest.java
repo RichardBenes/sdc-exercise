@@ -21,10 +21,10 @@ public class PrimalityCheckerTest {
 
         // Arrange
 
-        ArrayBlockingQueue<EnhancedCell> testMain2PCQ = 
+        ArrayBlockingQueue<EnhancedCellI> testMain2PCQ = 
             new ArrayBlockingQueue<>(5);
         
-        ArrayBlockingQueue<EnhancedCell> outputAbq =
+        ArrayBlockingQueue<EnhancedCellI> outputAbq =
             new ArrayBlockingQueue<>(5);
         
         AKS aks = mock(AKS.class);
@@ -32,22 +32,18 @@ public class PrimalityCheckerTest {
         PrimalityChecker pChecker = new PrimalityChecker(testMain2PCQ, outputAbq, aks);
 
         EnhancedCell e1 = mock(EnhancedCell.class);
-        when(e1.isEndOfProcessingCell()).thenReturn(false);
         when(e1.getVisualRowIndex()).thenReturn(1);
         when(e1.getNumericValue()).thenReturn(7L);
 
         EnhancedCell e2 = mock(EnhancedCell.class);
-        when(e2.isEndOfProcessingCell()).thenReturn(false);
         when(e2.getVisualRowIndex()).thenReturn(2);
         when(e2.getNumericValue()).thenReturn(8L);
 
         EnhancedCell e3 = mock(EnhancedCell.class);
-        when(e3.isEndOfProcessingCell()).thenReturn(false);
         when(e3.getVisualRowIndex()).thenReturn(3);
         when(e3.getNumericValue()).thenReturn(11L);
 
-        EnhancedCell eEndOfProc = mock(EnhancedCell.class);
-        when(eEndOfProc.isEndOfProcessingCell()).thenReturn(true);
+        EnhancedCellI eEndOfProc = new EndOfProcessingCell();
 
         testMain2PCQ.addAll(List.of(e1, e2, e3, eEndOfProc));
 
@@ -58,16 +54,16 @@ public class PrimalityCheckerTest {
 
         // The end of processing cell should remain in the queue
         assertThat(testMain2PCQ.size()).isEqualTo(1);
-        assertThat(testMain2PCQ.take().isEndOfProcessingCell()).isTrue();
+        assertThat(testMain2PCQ.take()).isInstanceOf(EndOfProcessingCell.class);
 
         // And there should be some results in the output queue...
         assertThat(outputAbq.size()).isEqualTo(3);
 
-        var outputElements = new ArrayList<EnhancedCell>();
+        var outputElements = new ArrayList<EnhancedCellI>();
         outputAbq.drainTo(outputElements);
 
         assertThat(outputElements)
-            .extracting(ec -> ec.isEndOfProcessingCell())
+            .extracting(ec -> ec instanceof EnhancedCell)
             .allMatch(b -> b.equals(false));
 
         assertThat(outputElements)
@@ -75,7 +71,8 @@ public class PrimalityCheckerTest {
             .containsExactly(1, 2, 3);
         
         assertThat(outputElements)
-            .extracting(ec -> ec.getNumericValue())
+            .filteredOn(ec -> ec instanceof EnhancedCell)
+            .extracting(ec -> ((EnhancedCell) ec ).getNumericValue())
             .containsExactly(7L, 8L, 11L);    
     }
     

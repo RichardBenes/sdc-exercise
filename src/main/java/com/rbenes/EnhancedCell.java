@@ -8,7 +8,7 @@ import lombok.extern.log4j.Log4j2;
 
 // TODO: remove hardcoded column B
 @Log4j2
-public class EnhancedCell implements Comparable<EnhancedCell> {
+public final class EnhancedCell implements EnhancedCellI {
 
     @Getter
     private Cell cell;
@@ -18,42 +18,13 @@ public class EnhancedCell implements Comparable<EnhancedCell> {
 
     private Long numericValue;
 
-    @Getter
-    // Using kind of the Null Object Pattern
-    // https://youtu.be/rQ7BzfRz7OY?si=0xRl9nzpCdA8v6xn
-    private final boolean endOfProcessingCell;
-
     public EnhancedCell(Cell c) {
-        this.endOfProcessingCell = false;
         this.cell = c;
         this.primality = Primality.UNKNOWN_YET;
         this.numericValue = null;
     }
 
-    private EnhancedCell() {
-        this.endOfProcessingCell = true;
-        this.cell = null;
-        this.primality = Primality.INVALID;
-        this.numericValue = null;
-    }
-
-    public static EnhancedCell createEndOfProcessingCell() {
-        return new EnhancedCell();
-    }
-
-    @Override
-    public int compareTo(EnhancedCell o) {
-        return Integer.compare(
-            getVisualRowIndex(), o.getVisualRowIndex());
-    }
-
     public int getVisualRowIndex() {
-
-        if (isEndOfProcessingCell()) {
-            // This is safe; max. number of rows in Excel is around 1 bilion,
-            // we're returning value above 2 bilions.
-            return Integer.MAX_VALUE;
-        }
 
         return cell.getRowIndex() + 1;
     }
