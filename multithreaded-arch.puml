@@ -35,23 +35,6 @@ fork again
     }
 fork again
     partition Single Outputter thread {
-        floating note right
-            The **sortQ** is a 
-            priority queue.
-            It sorts inserted
-            cells using their
-            Row ID.
-            This queue is
-            used only by
-            the Outputter
-            thread.
-            The EOP is added
-            to **PC2OutQ** 
-            by the main thread
-            only after all 
-            PrimalityChecker 
-            threads join.        
-        end note
         repeat
             :Wait for cell\nfrom **PC2OutQ**; <<blocking>>
             :Put it to **sortQ**;
